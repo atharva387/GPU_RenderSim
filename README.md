@@ -49,14 +49,4 @@ Ideal for showcasing your understanding of the GPU graphics pipeline and 3D math
 
 ## 📂 Project Structure
 
-GPU-RenderSim/
-├── shaders/
-│ ├── vertex_shader.glsl
-│ └── fragment_shader.glsl
-├── assets/
-│ └── screenshot.png # Add your own preview
-├── src/
-│ └── main.cpp
-├── .gitignore
-├── README.md
-└── CMakeLists.txt (optional)
+<pre> GPU-RenderSim/ ├── shaders/ │ ├── vertex_shader.glsl │ └── fragment_shader.glsl ├── assets/ │ └── screenshot.png # Add your demo image here ├── src/ │ └── main.cpp # Full OpenGL C++ source ├── .gitignore # Git exclusions ├── README.md # This file └── CMakeLists.txt # (Optional) for cross-platform builds </pre>
