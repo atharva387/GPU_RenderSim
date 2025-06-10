@@ -8,6 +8,16 @@
 #include <sstream>
 #include <string>
 #include <cmath>
+// Camera settingss
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float yaw = -90.0f;
+float pitch = 0.0f;
+float lastX = 400, lastY = 300;
+bool firstMouse = true;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -25,6 +35,49 @@ std::string loadShaderSource(const char* filepath) {
     buffer << file.rdbuf();
     return buffer.str();
 }
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    static float sensitivity = 0.1f;
+
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed: y-coordinates go from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f)  pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
+}
+
+void processInput(GLFWwindow* window) {
+    float cameraSpeed = 2.5f * deltaTime; // movement speed per frame
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+}
+
 
 int main() {
     if (!glfwInit()) {
@@ -37,6 +90,9 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "GPU RenderSim", NULL, NULL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+
     if (window == NULL) {
         std::cerr << "Failed to create GLFW window!" << std::endl;
         glfwTerminate();
@@ -161,31 +217,57 @@ int main() {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    // ✅ Enable depth test ONCE before the loop
+    glEnable(GL_DEPTH_TEST);
 
+    // ✅ Define this once (above the render loop)
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+    };
+    // Add keyboard movement:
+    
     // Render Loop
     while (!glfwWindowShouldClose(window)) {
-        glm::mat4 model = glm::rotate(glm::mat4(1.0f),
-            (float)glfwGetTime(),
-            glm::vec3(0.5f, 1.0f, 0.0f));
-        glm::mat4 view = glm::translate(glm::mat4(1.0f),
-            glm::vec3(0.0f, 0.0f, -3.0f));
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        processInput(window);
+
+        // ✅ Clear screen and depth buffer
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // ✅ Use your shader program and VAO
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+
+        // ✅ Common view and projection matrices
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         glm::mat4 projection = glm::perspective(glm::radians(45.0f),
             800.0f / 600.0f,
             0.1f, 100.0f);
-        glm::mat4 transform = projection * view * model;
 
-        // send matrix to vertex shader
-        unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+        // ✅ Draw each cube
+        for (unsigned int i = 0; i < 6; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = glfwGetTime() * 25.0f + (i * 20.0f);
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+            glm::mat4 transform = projection * view * model;
+            unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
+            glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
-        glUseProgram(shaderProgram);   // 🔥 Use compiled shaders
-        glBindVertexArray(VAO);        // 🔗 Bind VAO
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        // 🎨 Draw triangle
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
+        // ✅ Swap buffers and poll events
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
