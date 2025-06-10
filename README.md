@@ -1,47 +1,51 @@
 ﻿# 🚀 GPU-RenderSim
 
-🧊 Real-time 3D rendering demo in C++ using OpenGL. Features a free-fly camera, multiple rotating cubes, depth buffer, custom shaders, and transformation matrices.
+🧊 Real-time 3D rendering demo in C++ using OpenGL.  
+Features a free-fly FPS-style camera, multiple rotating cubes, transformation matrices, and custom GLSL shaders — built from scratch using GLFW, GLAD, and GLM.
 
-Built from scratch using GLFW, GLAD, and GLM — demonstrating core GPU pipeline understanding and graphics programming foundations.
+Ideal for showcasing your understanding of the GPU graphics pipeline and 3D math in interviews and portfolios.
 
 ---
 
 ## 📸 Demo Preview
 
-![demo](./assets/screenshot.png) <!-- You can add this later -->
+> 🖼️ Add a screenshot here: `assets/screenshot.png`
+
+![demo-preview](./assets/screenshot.png)
 
 ---
 
-## 🧠 Features
+## 🔧 Features
 
-- ✅ Multiple 3D rotating cubes
-- ✅ Free-fly camera movement (WASD + Mouse Look)
-- ✅ Real-time transformation using MVP matrices
-- ✅ Custom GLSL shaders (vertex + fragment)
-- ✅ Depth buffering
-- 🖼️ Ready for extension with textures and lighting
+- ✅ Real-time rotating 3D cubes
+- ✅ WASD + mouse-based camera navigation
+- ✅ MVP transformations (model/view/projection)
+- ✅ Shader-based rendering (GLSL)
+- ✅ Depth buffering for proper 3D visibility
+- 🖼️ GitHub-ready structure for easy cloning and building
 
 ---
 
 ## 🎮 Controls
 
-| Key / Mouse | Action |
+| Key / Input | Action |
 |-------------|--------|
 | `W` / `S`   | Move forward / backward |
 | `A` / `D`   | Strafe left / right |
-| `Mouse`     | Look around |
-| `Esc`       | Exit app |
+| `Mouse Move` | Look around (yaw/pitch) |
+| `Esc`       | Exit window |
 
 ---
 
-## 🧰 Built With
+## 📦 Tech Stack
 
-- [GLFW](https://www.glfw.org/) – Window & input
-- [GLAD](https://glad.dav1d.de/) – OpenGL loader
-- [GLM](https://github.com/g-truc/glm) – Matrix math
-- C++ (Visual Studio)
+- **C++** – Core language
+- **OpenGL (3.3 Core)** – Graphics API
+- **GLFW** – Windowing + Input
+- **GLAD** – OpenGL function loader
+- **GLM** – Matrix math (MVP, vectors, camera)
 
 ---
 
-## 📦 Project Structure
+## 📂 Project Structure
 
