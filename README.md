@@ -26,7 +26,7 @@ Ideal for showcasing your understanding of the GPU graphics pipeline and 3D math
 
 ---
 
-## 🎮 Controls
+
 
 | Key / Input | Action |
 |-------------|--------|
